@@ -5,13 +5,18 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float _speedMove = 5f;
-    //[SerializeField] private float _jumpForce = 5f;
+    [SerializeField] private float _jumpForce = 5f;
 
     // Gravity Scale
     [SerializeField] private float _gravityScale = -9.81f; // Default gravity value
+    private float _yVelocity;
     private InputSystem_Actions _actions;
     private CharacterController _controller;
     private Vector2 _moveInput;
+    private Vector2 _playerVelocity;
+    
+
+    private bool _isJump;
     private void Awake() 
     {
         // Initialize input actions
@@ -31,14 +36,20 @@ public class PlayerController : MonoBehaviour
         // Bind input actions to callbacks
         _actions.Player.Enable();
         _actions.Player.Move.performed += OnMove;
-        _actions.Player.Move.canceled += OnMove;        
+        _actions.Player.Move.canceled += OnMove;
+        _actions.Player.Jump.performed += OnJump;
+        _actions.Player.Jump.canceled += OnJump;        
     }
+
+    
 
     private void OnDisable()
     {
         _actions.Player.Disable();
         _actions.Player.Move.performed -= OnMove;
         _actions.Player.Move.canceled -= OnMove;
+        _actions.Player.Jump.performed -= OnJump;
+        _actions.Player.Jump.canceled -= OnJump;
     }    
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -53,6 +64,8 @@ public class PlayerController : MonoBehaviour
         PlayerMove();
         PhysicGravity();
     }
+
+    
 
     private void OnMove(InputAction.CallbackContext context)
     {
@@ -70,6 +83,30 @@ public class PlayerController : MonoBehaviour
     private void PhysicGravity()
     {
         Vector3 gravityScale = new Vector3(0, _gravityScale,0);
-        _controller.Move(gravityScale * Time.deltaTime);
+
+        if(_controller.includeLayers != LayerMask.GetMask("Ground"))
+        {
+            _playerVelocity.y += gravityScale.y * Time.deltaTime;
+           Debug.Log("PhysicsForce: " + _playerVelocity.y);
+            _controller.Move(_playerVelocity * Time.deltaTime);
+
+        }
+        else
+        {
+            _playerVelocity.y = 0f;
+            _controller.Move(_playerVelocity * Time.deltaTime);
+        }
+    }
+
+    private void OnJump(InputAction.CallbackContext context)
+    {
+        _isJump = context.ReadValueAsButton();
+
+        if(_isJump && _controller.isGrounded)
+        {
+            _playerVelocity.y += Mathf.Sqrt(_jumpForce * -2f * _gravityScale);
+             Debug.Log("jumForces: " + _playerVelocity.y);
+            
+        }       
     }
 }

@@ -307,6 +307,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _speedMove: 5
+  _jumpForce: 5
   _gravityScale: -9.81
 --- !u!1 &330585543
 GameObject:
