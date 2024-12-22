@@ -6,6 +6,9 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float _speedMove = 5f;
     //[SerializeField] private float _jumpForce = 5f;
+
+    // Gravity Scale
+    [SerializeField] private float _gravityScale = -9.81f; // Default gravity value
     private InputSystem_Actions _actions;
     private CharacterController _controller;
     private Vector2 _moveInput;
@@ -48,6 +51,7 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         PlayerMove();
+        PhysicGravity();
     }
 
     private void OnMove(InputAction.CallbackContext context)
@@ -61,5 +65,11 @@ public class PlayerController : MonoBehaviour
         Vector3 pMove = new Vector3(_moveInput.x, 0, 0);
         pMove = transform.TransformDirection(pMove);
         _controller.Move(pMove * _speedMove * Time.deltaTime);
+    }
+
+    private void PhysicGravity()
+    {
+        Vector3 gravityScale = new Vector3(0, _gravityScale,0);
+        _controller.Move(gravityScale * Time.deltaTime);
     }
 }
